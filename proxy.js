@@ -29,9 +29,9 @@ app.all("/*", (req, res) => {
   };
 
   var apiReq = https.request(options, function (apiRes) {
+    let response;
     apiRes.on("data", (d) => {
-      let response = d;
-
+      response = d;
       const contentType = apiRes.headers["content-type"];
       if (contentType === "application/json") {
         try {
@@ -40,12 +40,10 @@ app.all("/*", (req, res) => {
           console.log("error parsing json");
         }
       }
-
-      res.status(apiRes.statusCode).send(d);
     });
 
     apiRes.on("end", () => {
-      res.status(apiRes.statusCode).send();
+      res.status(apiRes.statusCode).send(response);
     });
   });
 
