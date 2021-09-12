@@ -30,12 +30,26 @@ app.all("/*", (req, res) => {
 
   var apiReq = https.request(options, function (apiRes) {
     apiRes.on("data", (d) => {
-      res.send(JSON.parse(d));
+      let response = d;
+
+      const contentType = apiRes.headers["content-type"];
+      if (contentType === "application/json") {
+        try {
+          response = JSON.parse(d);
+        } catch (e) {
+          console.log("error parsing json");
+        }
+      }
+
+      res.status(apiRes.statusCode).send(d);
+    });
+
+    apiRes.on("end", () => {
+      res.status(apiRes.statusCode).send();
     });
   });
 
   if (req.method === "POST") {
-    console.log("posting");
     const data = new TextEncoder().encode(JSON.stringify(req.body));
     apiReq.write(data);
   }
